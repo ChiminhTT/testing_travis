@@ -3,9 +3,28 @@ rust:
 - stable
 - beta
 - nightly
+os:
+- linux
+- osx
 matrix:
   allow-failures:
   - rust: nightly
+after_success: |
+  sudo apt-get install libcurl4-openssl-dev libelf-dev libdw-dev &&
+  wget https://github.com/SimonKagstrom/kcov/archive/master.tar.gz &&
+  tar xzf master.tar.gz && mkdir kcov-master/build && cd kcov-master/build && cmake .. && make &&
+  sudo make install && cd ../.. &&
+  kcov --coveralls-id=$TRAVIS_JOB_ID --exclude-pattern=/.cargo target/kcov target/debug/testing-*
+  [ $TRAVIS_BRANCH = master ] &&
+  [ $TRAVIS_PULL_REQUEST = false ] &&
+  cargo doc &&
+  echo "<meta http-equiv=refresh content=0;url=`echo testing | cut -d '/' -f 2`/index.html>" > target/doc/index.html &&
+  sudo pip install ghp-import &&
+  ghp-import -n target/doc &&
+  git push -fq https://${GH_TOKEN}@github.com/ChiminhTT/testing_travis.git gh-pages
 notifications:
   slack:
     secure: oqGvfcueZyuRl2k/ElOwY0YL4SrN8Dri5E6SsZOUartjm3lHNET69Y2qFiCOVGBbO+qtsn57sBVJmlhhAm3Meeb/8ul1JEOhNztdXbs/xkQ+B4ahbmQs5k8eJffQ5WoR96CY5swfW+/gF1L5j73nuif3+7wRkCn0IHWyDQpPoErmQzRWsPktj3fHkSlWTrVXMtTYBA7EURqN4wuEekfl2cjWzzcN0mJuQ0ErsOGTCFeDiQQ7oixDm24+S33Ot+dIgPAvKDMgb8knI8sCG+GbgDns8r4eh2tzVEkuJ9lprky5f0uUb1ldfoRcMRvYZ4MYk3LNQ+A77a22xiyUIyGUPTWK8dhQX54ILJak+T1d1eU5U8vwJy9yOxsCTr7CZALK7cxcpNjQIv0oeq5gwEv9W+T+j9WsawYLfOoH2vlCBSkc4mQl4vCU3IcR6xETZqPfi1IE5CZNlTP6qgojYRRu2jcuo9vbvA2GG2VjQ5G9GaTuHxxOCL/Y1W/MeZnVTwa1Nf+kisFlcjk4iWH7YEt4if6Ndzu9iO8P1/7F05QVbE64Y5x9i8DaTZC0xbiZDKzcfXWwD0IW6RH5/UeMMgpD3qPQboTXEz2XWRT0mpBHk4wn1AWoIq6srLbeF9eLm4AruvuvMfG1CQ+Vho6oBme39fRLf0I9KgNNFw2+3MavW0c=
+env:
+  global:
+    secure: dYed/YzI7YRKGVFCnYCMgjbqVkhKkpcvbS2lr4viNTPyZcOe+ScMI4Lsxd43as+zguQq4Dplwmu4qvqtUARupU0le/BOc4vY3YQg8Y1OlVAM1fVgWrRZNRq23DNPWb/dLT/cuJxOZ1XurF6A5MbozjKboCwCCSA/4YIanqMCevrP1hUZ9YVZEM3ix8CaI6aZ/5tZr4hEVv1oOWcZVLjhlDQbwQk7F0oUExzDcPR6wYwxcv5b5Dig42s9m6UhjiEZtl9nmOQVF2Mhsx8o2plx8lfYBdT11C16IBnbNneJLFu1m2KpuYvRRDAMYPkRejBq/DK20P1+iaqXx2PpASQUSjWuXv53H2I7BjuySJF3Ka0wHS+xM3JKJQcBl09aZJqj3iiM3Hw7sNkkZHvhuNzPrQHWlD9cB85MsY9ugOaGTLdLL7DtvF0MkYYFDD/njRKqWzITh1ZjkiwBBSHlhwENIwgkvWX6inkOJ4c80zqvA2hl47MrA4PIxVCToV+NaAlK42Izwmku4J6CX7QUiqlUugxDEVW757LJdDHTtlddaSEeOGUbv8wZ9EFmSvxQoghh8iaNtRq4Y2M5sKBfD1jAVZnicKHfswfUunjS+SbeP4rXaIcUqubUfbk/ejP9JDhB7GjTeDmCIapz33ckexob3T8zCOKHLYVz8T0qJ2/MUC4=
