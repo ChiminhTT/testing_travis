@@ -32,9 +32,8 @@ mod tests {
     use super::add_two;
 
     #[test]
-    #[should_panic(expected = "assertion failed")]
-    fn should_panic() {
-        assert_eq!("Hello", "world")
+    fn should_be_different() {
+        assert!("Hello" !=  "world")
     }
 
     #[test]
